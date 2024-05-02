@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: apache/age:PG16_latest
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./volumes/postgres/:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD", "sh", "-c", "pg_isready -U $$POSTGRES_USER -h $$(hostname -i)"]
+      interval: 10s
+      start_period: 30s
+
+  age-viewer:
+    # https://github.com/apache/age-viewer/issues/118
+    image: stephaneklein/age-viewer
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
