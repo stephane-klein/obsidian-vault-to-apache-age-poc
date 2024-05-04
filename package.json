@@ -1,6 +1,7 @@
 {
   "name": "obsidian-vault-to-apache-age-poc",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,5 +9,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "glob": "10.3.12",
+    "gray-matter": "4.0.3",
+    "js-yaml": "4.1.0",
+    "postgres": "^3.4.4"
+  }
 }
