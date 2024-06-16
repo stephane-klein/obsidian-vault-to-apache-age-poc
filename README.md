@@ -30,3 +30,11 @@ $$) as (edges agtype);
 ```
 
 <img src="screenshots/execute-query.png" />
+
+```sql
+SELECT *
+FROM cypher('graph', $$
+    MATCH (note:Tag)
+    RETURN note.name
+$$) as (edges agtype);
+```

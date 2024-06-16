@@ -33,6 +33,21 @@ for await (const filename of (await glob("content/**/*.md"))) {
             )
         $$) AS (v agtype)
     `);
+    if (data.data.tags) {
+        data.data.tags.forEach(async (tagName) => {
+            await sql.unsafe(`
+                SELECT *
+                FROM cypher('graph', $$
+                    CREATE (
+                        :Tag
+                        {
+                            name: '${tagName}'
+                        }
+                    )
+                $$) AS (v agtype)
+            `);
+        });
+    }
 };
 
 sql.end();
