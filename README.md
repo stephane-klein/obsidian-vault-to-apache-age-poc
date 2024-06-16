@@ -9,5 +9,24 @@ $ docker compose up -d --wait
 ```
 
 ```sh
+$ ./scripts/enter-in-pg.sh -f init.sql
 $ ./import.js
 ```
+
+## Age Viewer
+
+```sh
+$ firefox http://localhost:3000/
+```
+
+<img src="screenshots/connect-to-database.png" />
+
+```sql
+SELECT *
+FROM cypher('graph', $$
+    MATCH (note:Note)
+    RETURN note.filename
+$$) as (edges agtype);
+```
+
+<img src="screenshots/execute-query.png" />
