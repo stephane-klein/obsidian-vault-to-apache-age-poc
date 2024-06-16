@@ -31,10 +31,22 @@ $$) as (edges agtype);
 
 <img src="screenshots/execute-query.png" />
 
+Query all tags:
+
 ```sql
 SELECT *
 FROM cypher('graph', $$
     MATCH (note:Tag)
     RETURN note.name
 $$) as (edges agtype);
+```
+
+Query notes and tags:
+
+```sql
+SELECT note_name, tag_name
+FROM cypher('graph', $$
+    MATCH (note:Note)-[:LABELED_BY]->(tag:Tag)
+    RETURN note.filename AS note_filename, tag.name AS tag_name
+$$) as (note_name agtype, tag_name agtype);
 ```

@@ -38,12 +38,20 @@ for await (const filename of (await glob("content/**/*.md"))) {
             await sql.unsafe(`
                 SELECT *
                 FROM cypher('graph', $$
+                    MATCH
+                        (n:Note)
+                    WHERE
+                        n.filename = '${filename}'
+
                     CREATE (
-                        :Tag
+                        t:Tag
                         {
                             name: '${tagName}'
                         }
                     )
+
+                    CREATE
+                        (n)-[:LABELED_BY]->(t)
                 $$) AS (v agtype)
             `);
         });
