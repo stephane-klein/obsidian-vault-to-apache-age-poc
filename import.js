@@ -13,8 +13,6 @@ const sql = postgres(
     }
 );
 
-
-
 for await (const filename of (await glob("content/**/*.md"))) {
     const data = matter.read(filename, {
         engines: {
@@ -24,17 +22,45 @@ for await (const filename of (await glob("content/**/*.md"))) {
     await sql.unsafe(`
         SELECT *
         FROM cypher('graph', $$
-            CREATE (
-                :Note
-                {
-                    filename: '${filename}',
-                    title: '${data.data.title}'
-                }
-            )
-        $$) AS (v agtype)
+            MERGE (n:Note {filename: '${filename}', title: '${data.data.title}'})
+        $$) AS (v agtype);
     `);
+    const noteId = (await sql`
+        INSERT INTO public.notes
+        (
+            filename,
+            content
+        )
+        VALUES(
+            ${filename},
+            ${data.content}
+        )
+        ON CONFLICT (filename) DO UPDATE
+            SET content=${data.content}
+        RETURNING id
+    `)[0].id;
+
+    await sql`
+        DELETE FROM public.note_aliases WHERE note_id=${noteId}
+    `;
+    if (data.data.aliases) {
+        for await (const name of data.data.aliases) {
+            await sql`
+                INSERT INTO public.note_aliases
+                (
+                    note_id,
+                    name
+                )
+                VALUES (
+                    ${noteId},
+                    ${name}
+                )
+            `;
+        };
+    }
+
     if (data.data.tags) {
-        data.data.tags.forEach(async (tagName) => {
+        for await (const tagName of data.data.tags) {
             await sql.unsafe(`
                 SELECT *
                 FROM cypher('graph', $$
@@ -54,7 +80,7 @@ for await (const filename of (await glob("content/**/*.md"))) {
                         (n)-[:LABELED_BY]->(t)
                 $$) AS (v agtype)
             `);
-        });
+        };
     }
 };
 
