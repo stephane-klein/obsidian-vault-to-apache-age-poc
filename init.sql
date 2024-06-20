@@ -4,5 +4,11 @@ CREATE EXTENSION IF NOT EXISTS age;
 LOAD 'age';
 SET search_path = ag_catalog, "$user", public;
 
-SELECT drop_graph('graph', true);
+-- Delete graph only if exists
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM ag_catalog.ag_graph WHERE name = 'graph') THEN
+        PERFORM drop_graph('graph', true);
+    END IF;
+END $$;
 SELECT create_graph('graph');
