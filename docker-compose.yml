@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: apache/age:PG16_latest
+    build: 
+        context: .
     restart: unless-stopped
     ports:
       - 5432:5432
