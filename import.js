@@ -19,10 +19,11 @@ for await (const filename of (await glob("content/**/*.md"))) {
             yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA })
         }
     });
+    console.log(`Import ${filename}`);
     await sql.unsafe(`
         SELECT *
         FROM cypher('graph', $$
-            MERGE (n:Note {filename: '${filename}', title: '${data.data.title}'})
+            MERGE (n:Note {filename: '${filename?.replace(/'/g, "\\'")}', title: '${data.data.title?.replace(/'/g, "\\'")}'})
         $$) AS (v agtype);
     `);
     const noteId = (await sql`
@@ -44,7 +45,7 @@ for await (const filename of (await glob("content/**/*.md"))) {
         DELETE FROM public.note_aliases WHERE note_id=${noteId}
     `;
     if (data.data.aliases) {
-        for await (const name of data.data.aliases) {
+        for await (const name of (typeof data.data.aliases === 'string' ? [data.data.aliases] : data.data.aliases)) {
             await sql`
                 INSERT INTO public.note_aliases
                 (
@@ -55,6 +56,7 @@ for await (const filename of (await glob("content/**/*.md"))) {
                     ${noteId},
                     ${name}
                 )
+                ON CONFLICT DO NOTHING
             `;
         };
     }
@@ -67,12 +69,12 @@ for await (const filename of (await glob("content/**/*.md"))) {
                     MATCH
                         (n:Note)
                     WHERE
-                        n.filename = '${filename}'
+                        n.filename = '${filename.replace(/'/g, "\\'")}'
 
                     CREATE (
                         t:Tag
                         {
-                            name: '${tagName}'
+                            name: '${tagName.replace(/'/g, "\\'")}'
                         }
                     )
 
