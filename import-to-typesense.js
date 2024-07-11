@@ -45,3 +45,9 @@ for await (const filename of (await glob("content/**/*.md"))) {
         "content": data.content
     });
 }
+
+console.log(await client.keys().create({
+  'description': 'Search-only key',
+  'actions': ['documents:search'],
+  'collections': ['notes']
+}));

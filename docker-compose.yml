@@ -33,4 +33,4 @@ services:
       - "8108:8108"
     volumes:
       - ./volumes/typesense/:/data
-    command: '--data-dir /data --api-key=xyz --enable-cors'
+    command: '--data-dir /data --api-key=xyz --enable-cors --cors-domains=http://localhost:8080'

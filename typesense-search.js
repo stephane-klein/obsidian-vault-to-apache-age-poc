@@ -15,7 +15,7 @@ let result = await client.collections("notes")
     .documents()
     .search({
         "q": "Codemirror",
-        "query_by": "content"
+        "query_by": "title,content"
     });
 
 console.dir(result, { depth: null });
