@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="shortcut icon" href="./favicon.png">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7/themes/algolia-min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.3.0/themes/algolia-min.css">
     <link rel="stylesheet" href="index.css">
 
     <title>Typesense InstantSearch.js Demo</title>
@@ -39,7 +39,7 @@
     <div id="pagination"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.44.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.73.1"></script>
 <script src="https://cdn.jsdelivr.net/npm/typesense-instantsearch-adapter@2/dist/typesense-instantsearch-adapter.min.js"></script>
 
 <script>
@@ -85,6 +85,7 @@
                           <div class="hit-name">
                             ${item._highlightResult.title.value}
                           </div>
+                            <p>${item._highlightResult.content.value}</p>
                         </div>
                       `;
                 },
