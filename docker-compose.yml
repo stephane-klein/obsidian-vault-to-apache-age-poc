@@ -33,4 +33,10 @@ services:
       - "8108:8108"
     volumes:
       - ./volumes/typesense/:/data
-    command: '--data-dir /data --api-key=xyz --enable-cors --cors-domains=http://localhost:8080'
+    command: '--data-dir /data --api-key=xyz --enable-cors --cors-domains=http://localhost:8080,http://localhost:8000'
+
+  typesense-dashboard:
+    image: bfritscher/typesense-dashboard:1.9.1
+    restart: on-failure
+    ports:
+      - "8000:80"
