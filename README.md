@@ -32,8 +32,8 @@ SET search_path = ag_catalog, "$user", public;
 SELECT *
 FROM cypher('graph', $$
     MATCH (note:Note)
-    RETURN note.filename
-$$) as (edges agtype);
+    RETURN note.file_name
+$$) as (file_name agtype);
 ```
 
 <img src="screenshots/execute-query.png" />
@@ -44,16 +44,32 @@ Query all tags:
 SELECT *
 FROM ag_catalog.cypher('graph', $$
     MATCH (note:Tag)
-    RETURN note.name
-$$) as (edges ag_catalog.agtype);
+    RETURN note.file_name
+$$) as (file_name ag_catalog.agtype);
 ```
 
 Query notes and tags:
 
 ```sql
-SELECT note_filename, tag_name
+SELECT note_file_name, tag_name
 FROM ag_catalog.cypher('graph', $$
     MATCH (note:Note)-[:LABELED_BY]->(tag:Tag)
-    RETURN note.filename AS note_filename, tag.name AS tag_name
-$$) as (note_filename ag_catalog.agtype, tag_name ag_catalog.agtype);
+    RETURN note.file_name AS note_file_name, tag.name AS tag_name
+$$) as (note_file_name ag_catalog.agtype, tag_name ag_catalog.agtype);
+```
+
+Query notes linked to `SvelteKit`:
+
+```sql
+SELECT file_name
+FROM ag_catalog.cypher('graph', $$
+    MATCH (note:Note)-[:LINKED_TO]->(note2:Note {file_name: "SvelteKit.md"})
+    RETURN note.file_name
+$$) as (file_name ag_catalog.agtype);
+```
+
+## Execute tests
+
+```
+$ pnpm run tests
 ```

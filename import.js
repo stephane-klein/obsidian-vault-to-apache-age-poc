@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { glob } from "glob";
+import path from "path";
 import matter from "gray-matter";
 import yaml from "js-yaml";
 import postgres from "postgres";
+import { extractLinks } from "./utils.js";
 
 const sql = postgres(
     process.env.POSTGRES_ADMIN_URL || "postgres://postgres:password@localhost:5432/postgres",
@@ -13,30 +15,64 @@ const sql = postgres(
     }
 );
 
-for await (const filename of (await glob("content/**/*.md"))) {
-    const data = matter.read(filename, {
+await sql.unsafe(`
+    DELETE FROM public.notes CASCADE;
+    SELECT drop_graph('graph', true);
+    SELECT create_graph('graph');
+`);
+
+for await (const filePath of (await glob("content/**/*.md"))) {
+    const data = matter.read(filePath, {
         engines: {
             yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA })
         }
     });
-    console.log(`Import ${filename}`);
-    await sql.unsafe(`
+    console.log(`Import ${filePath}`);
+    const fileName = path.basename(filePath);
+    const node = (await sql.unsafe(`
         SELECT *
         FROM cypher('graph', $$
-            MERGE (n:Note {filename: '${filename?.replace(/'/g, "\\'")}', title: '${data.data.title?.replace(/'/g, "\\'")}'})
-        $$) AS (v agtype);
-    `);
+            MATCH (note:Note {file_name: '${fileName.replace(/'/g, "\\'")}'})
+            RETURN note
+        $$) AS (note agtype)
+    `))[0]?.note;
+    if (node) {
+        await sql.unsafe(`
+            SELECT *
+            FROM cypher('graph', $$
+                MATCH (n:Note {file_name: '${fileName.replace(/'/g, "\\'")}'})
+                SET n += {
+                    file_path: '${filePath.replace(/'/g, "\\'")}',
+                    title: '${(data.data?.title || path.parse(fileName).name) .replace(/'/g, "\\'") }'
+                }
+            $$) AS (v agtype);
+        `);
+    } else {
+        await sql.unsafe(`
+            SELECT *
+            FROM cypher('graph', $$
+                MERGE (
+                    n:Note {
+                        file_path: '${filePath.replace(/'/g, "\\'")}',
+                        file_name: '${fileName.replace(/'/g, "\\'")}',
+                        title: '${(data.data?.title || path.parse(fileName).name) .replace(/'/g, "\\'") }'
+                    }
+                )
+            $$) AS (v agtype);
+        `);
+    }
+
     const noteId = (await sql`
         INSERT INTO public.notes
         (
-            filename,
+            file_path,
             content
         )
         VALUES(
-            ${filename},
+            ${filePath},
             ${data.content}
         )
-        ON CONFLICT (filename) DO UPDATE
+        ON CONFLICT (file_path) DO UPDATE
             SET content=${data.content}
         RETURNING id
     `)[0].id;
@@ -69,7 +105,7 @@ for await (const filename of (await glob("content/**/*.md"))) {
                     MATCH
                         (n:Note)
                     WHERE
-                        n.filename = '${filename.replace(/'/g, "\\'")}'
+                        n.file_path = '${filePath.replace(/'/g, "\\'")}'
 
                     CREATE (
                         t:Tag
@@ -83,6 +119,50 @@ for await (const filename of (await glob("content/**/*.md"))) {
                 $$) AS (v agtype)
             `);
         };
+    }
+
+    for await (const WikiLink of extractLinks(data.content)) {
+        const node = (await sql.unsafe(`
+            SELECT *
+            FROM cypher('graph', $$
+                MATCH (n:Note {file_name: '${WikiLink.replace(/'/g, "\\'")}.md'})
+                RETURN n
+            $$) AS (note agtype)
+        `))[0]?.note;
+
+        if (!node) {
+            await sql.unsafe(`
+                SELECT *
+                FROM cypher('graph', $$
+                    MERGE (
+                        n:Note {
+                            file_name: '${WikiLink.replace(/'/g, "\\'")}.md',
+                            title: '${(path.parse(WikiLink).name) .replace(/'/g, "\\'") }'
+                        }
+                    )
+                $$) AS (v agtype);
+            `);
+        }
+
+        await sql.unsafe(`
+            SELECT *
+            FROM cypher('graph', $$
+                MATCH
+                    (n1:Note)
+                WHERE
+                    n1.file_path = '${filePath.replace(/'/g, "\\'")}'
+
+                MATCH (
+                    n2:Note
+                    {
+                        file_name: '${WikiLink.replace(/'/g, "\\'")}.md'
+                    }
+                )
+
+                CREATE
+                    (n1)-[:LINKED_TO]->(n2)
+            $$) AS (v agtype)
+        `);
     }
 };
 
