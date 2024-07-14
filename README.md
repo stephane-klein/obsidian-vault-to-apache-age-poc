@@ -21,7 +21,14 @@ $ firefox http://localhost:3000/
 
 <img src="screenshots/connect-to-database.png" />
 
+Run the following queries either in Age Viewer or in the psql command prompt:
+
+```
+$ ./scripts/enter-in-pg.sh
+```
+
 ```sql
+SET search_path = ag_catalog, "$user", public;
 SELECT *
 FROM cypher('graph', $$
     MATCH (note:Note)
@@ -35,18 +42,18 @@ Query all tags:
 
 ```sql
 SELECT *
-FROM cypher('graph', $$
+FROM ag_catalog.cypher('graph', $$
     MATCH (note:Tag)
     RETURN note.name
-$$) as (edges agtype);
+$$) as (edges ag_catalog.agtype);
 ```
 
 Query notes and tags:
 
 ```sql
-SELECT note_name, tag_name
-FROM cypher('graph', $$
+SELECT note_filename, tag_name
+FROM ag_catalog.cypher('graph', $$
     MATCH (note:Note)-[:LABELED_BY]->(tag:Tag)
     RETURN note.filename AS note_filename, tag.name AS tag_name
-$$) as (note_name agtype, tag_name agtype);
+$$) as (note_filename ag_catalog.agtype, tag_name ag_catalog.agtype);
 ```

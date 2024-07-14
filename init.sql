@@ -51,14 +51,3 @@ CREATE TABLE IF NOT EXISTS public.note_aliases (
 );
 CREATE INDEX note_aliases_note_id_index ON public.note_aliases (note_id);
 CREATE INDEX note_aliases_name_index    ON public.note_aliases (name);
-
-CREATE EXTENSION IF NOT EXISTS pg_search CASCADE;
-
-CALL paradedb.create_bm25(
-        index_name => 'notes_search_idx',
-        schema_name => 'public',
-        table_name => 'notes',
-        key_field => 'id',
-        text_fields => '{content: {}}'
-);
-

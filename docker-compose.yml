@@ -11,7 +11,6 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - ./volumes/postgres/:/var/lib/postgresql/data/
-      - ./docker-entrypoint-initdb.d/00-create-extension-age.sql:/docker-entrypoint-initdb.d/00-create-extension-age.sql
     healthcheck:
       test: ["CMD", "sh", "-c", "pg_isready -U $$POSTGRES_USER -h $$(hostname -i)"]
       interval: 10s
