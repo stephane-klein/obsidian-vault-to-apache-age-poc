@@ -1,11 +1,20 @@
 #!/usr/bin/env node
 import MarkdownIt from "markdown-it";
 import wikirefs_plugin from "markdown-it-wikirefs";
-import * as wikirefs from 'wikirefs';
+import * as wikirefs from "wikirefs";
 import { hashtag, spanHashAndTag } from "@fedify/markdown-it-hashtag";
+import postgres from "postgres";
 
 const args = process.argv.slice(2);
-console.log(args[0]);
+
+const sql = postgres(
+    process.env.POSTGRES_ADMIN_URL || "postgres://postgres:password@localhost:5432/postgres",
+    {
+        connection: {
+            search_path: "ag_catalog"
+        }
+    }
+);
 
 const md = new MarkdownIt()
 const options = {
@@ -19,19 +28,19 @@ const options = {
 };
 md.use(wikirefs_plugin, options);
 md.use(hashtag, {
-  link: (tag) => `https://example.com/tags/${tag.substring(1)}`,
+  link: (tag) => `/tags/${tag.substring(1)}`,
   linkAttributes: () => ({ class: "hashtag" }),
   label: spanHashAndTag,
 });
 
-console.log(
-    md.render(`
-# hello
+const note = (await sql`
+    SELECT content FROM public.notes WHERE file_path=${args[0]}
+`)[0];
 
-Ha ha
+if (note) {
+    console.log(
+        md.render(note.content)
+    );
+}
 
-[[Page 1]]
-
-Para2 #tag1 text2
-`)
-);
+sql.end();
