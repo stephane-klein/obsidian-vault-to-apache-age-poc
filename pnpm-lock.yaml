@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fedify/markdown-it-hashtag':
+        specifier: ^0.2.0
+        version: 0.2.0
       glob:
         specifier: 10.3.12
         version: 10.3.12
@@ -15,7 +18,7 @@ importers:
         specifier: 4.0.3
         version: 4.0.3
       jest:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0(@types/node@20.14.10)
       js-yaml:
         specifier: 4.1.0
@@ -29,6 +32,9 @@ importers:
       postgres:
         specifier: 3.4.4
         version: 3.4.4
+      wikirefs:
+        specifier: ^0.0.5
+        version: 0.0.5
 
 packages:
 
@@ -202,6 +208,9 @@ packages:
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+
+  '@fedify/markdown-it-hashtag@0.2.0':
+    resolution: {integrity: sha512-kg8LKcSzemcG356ZBjfV2WyRAIqUbZ1t1XTRgYOlmjv1HNrMaKQiQc6I2zYtZIb+8LKAJbDld7ZScVLCE/RSWQ==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -1268,6 +1277,9 @@ packages:
   wikirefs@0.0.4:
     resolution: {integrity: sha512-R4rKxGToR5ejpNKVfTOzhcKHvWR+4F3WaAy+ACWvDiDIrspWjabXdepWSYrbnrBlzorjMVUT98KVw9nJi8UAMQ==}
 
+  wikirefs@0.0.5:
+    resolution: {integrity: sha512-wxGl7+XC+f4/dfhf9Z2J+dozgHDZoKvX6UpHRohQyTKDHIxfFMdoN3pDx9ySFNG5vC0xQXF9iIfPhLUwKXjXVg==}
+
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -1515,6 +1527,10 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@bcoe/v8-coverage@0.2.3': {}
+
+  '@fedify/markdown-it-hashtag@0.2.0':
+    dependencies:
+      markdown-it: 14.1.0
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -2813,6 +2829,10 @@ snapshots:
       isexe: 2.0.0
 
   wikirefs@0.0.4:
+    dependencies:
+      escape-mkdn: 0.0.3
+
+  wikirefs@0.0.5:
     dependencies:
       escape-mkdn: 0.0.3
 

@@ -68,6 +68,12 @@ FROM ag_catalog.cypher('graph', $$
 $$) as (file_name ag_catalog.agtype);
 ```
 
+## Generate html from note path
+
+```sh
+$ ./render.js content/src/Notes\ éphémères/2024-05-02_1937.md
+```
+
 ## Execute tests
 
 ```
