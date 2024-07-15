@@ -4,7 +4,7 @@ import path from "path";
 import matter from "gray-matter";
 import yaml from "js-yaml";
 import postgres from "postgres";
-import { extractLinks } from "./utils.js";
+import { extractLinksAndTags } from "./utils.js";
 
 const sql = postgres(
     process.env.POSTGRES_ADMIN_URL || "postgres://postgres:password@localhost:5432/postgres",
@@ -97,6 +97,9 @@ for await (const filePath of (await glob("content/**/*.md"))) {
         };
     }
 
+    const [WikiLinks, Tags] = extractLinksAndTags(data.content);
+    data.data.tags = [...new Set([...data.data?.tags || [], ...Tags])]
+
     if (data.data.tags) {
         for await (const tagName of data.data.tags) {
             await sql.unsafe(`
@@ -121,7 +124,7 @@ for await (const filePath of (await glob("content/**/*.md"))) {
         };
     }
 
-    for await (const WikiLink of extractLinks(data.content)) {
+    for await (const WikiLink of WikiLinks) {
         const node = (await sql.unsafe(`
             SELECT *
             FROM cypher('graph', $$
