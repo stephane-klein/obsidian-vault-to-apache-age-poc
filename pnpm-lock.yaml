@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@fedify/markdown-it-hashtag':
-        specifier: ^0.2.0
+        specifier: 0.2.0
         version: 0.2.0
       glob:
         specifier: 10.3.12
@@ -32,8 +32,11 @@ importers:
       postgres:
         specifier: 3.4.4
         version: 3.4.4
+      stopmarkdown:
+        specifier: ^1.0.2
+        version: 1.0.2
       wikirefs:
-        specifier: ^0.0.5
+        specifier: 0.0.5
         version: 0.0.5
 
 packages:
@@ -1171,6 +1174,12 @@ packages:
   stack-utils@2.0.6:
     resolution: {integrity: sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ==}
     engines: {node: '>=10'}
+
+  stophtml@1.0.2:
+    resolution: {integrity: sha512-7QfPXRyTsf82M0pLzcNMVQGM+f883CcaYRuvjSy1Npd7RZD+76uINew955VDfpAfqqCGGWlzdW/tVD+WFCZHhA==}
+
+  stopmarkdown@1.0.2:
+    resolution: {integrity: sha512-9NY0gIjVv2wai101/+xtcMPgzA8Ynj5rHcuDNsB1TWDRmKSwy5g3CLvs6cuXj1Bx6uYYNEaggZUxJwXHaCYIqw==}
 
   string-length@4.0.2:
     resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}
@@ -2736,6 +2745,12 @@ snapshots:
   stack-utils@2.0.6:
     dependencies:
       escape-string-regexp: 2.0.0
+
+  stophtml@1.0.2: {}
+
+  stopmarkdown@1.0.2:
+    dependencies:
+      stophtml: 1.0.2
 
   string-length@4.0.2:
     dependencies:

@@ -19,6 +19,7 @@
     "markdown-it": "14.1.0",
     "markdown-it-wikirefs": "0.0.3",
     "postgres": "3.4.4",
+    "stopmarkdown": "1.0.2",
     "wikirefs": "0.0.5"
   }
 }

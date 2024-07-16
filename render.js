@@ -4,6 +4,7 @@ import wikirefs_plugin from "markdown-it-wikirefs";
 import * as wikirefs from "wikirefs";
 import { hashtag, spanHashAndTag } from "@fedify/markdown-it-hashtag";
 import postgres from "postgres";
+import stopmarkdown from "stopmarkdown";
 
 const args = process.argv.slice(2);
 
@@ -41,6 +42,7 @@ if (note) {
     console.log(
         md.render(note.content)
     );
+    console.log(stopmarkdown(note.content));
 }
 
 sql.end();
