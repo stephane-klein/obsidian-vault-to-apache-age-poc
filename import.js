@@ -29,38 +29,19 @@ for await (const filePath of (await glob("content/**/*.md"))) {
     });
     console.log(`Import ${filePath}`);
     const fileName = path.basename(filePath);
-    const node = (await sql.unsafe(`
+    await sql.unsafe(`
         SELECT *
         FROM cypher('graph', $$
-            MATCH (note:Note {file_name: '${fileName.replace(/'/g, "\\'")}'})
-            RETURN note
-        $$) AS (note agtype)
-    `))[0]?.note;
-    if (node) {
-        await sql.unsafe(`
-            SELECT *
-            FROM cypher('graph', $$
-                MATCH (n:Note {file_name: '${fileName.replace(/'/g, "\\'")}'})
-                SET n += {
-                    file_path: '${filePath.replace(/'/g, "\\'")}',
+            MERGE (
+                n:Note {
+                    file_name: '${fileName.replace(/'/g, "\\'")}',
                     title: '${(data.data?.title || path.parse(fileName).name) .replace(/'/g, "\\'") }'
                 }
-            $$) AS (v agtype);
-        `);
-    } else {
-        await sql.unsafe(`
-            SELECT *
-            FROM cypher('graph', $$
-                MERGE (
-                    n:Note {
-                        file_path: '${filePath.replace(/'/g, "\\'")}',
-                        file_name: '${fileName.replace(/'/g, "\\'")}',
-                        title: '${(data.data?.title || path.parse(fileName).name) .replace(/'/g, "\\'") }'
-                    }
-                )
-            $$) AS (v agtype);
-        `);
-    }
+            )
+            SET
+                n.file_path='${filePath.replace(/'/g, "\\'")}'
+        $$) AS (v agtype);
+    `);
 
     const noteId = (await sql`
         INSERT INTO public.notes
@@ -125,27 +106,17 @@ for await (const filePath of (await glob("content/**/*.md"))) {
     }
 
     for await (const WikiLink of WikiLinks) {
-        const node = (await sql.unsafe(`
+        await sql.unsafe(`
             SELECT *
             FROM cypher('graph', $$
-                MATCH (n:Note {file_name: '${WikiLink.replace(/'/g, "\\'")}.md'})
-                RETURN n
-            $$) AS (note agtype)
-        `))[0]?.note;
-
-        if (!node) {
-            await sql.unsafe(`
-                SELECT *
-                FROM cypher('graph', $$
-                    MERGE (
-                        n:Note {
-                            file_name: '${WikiLink.replace(/'/g, "\\'")}.md',
-                            title: '${(path.parse(WikiLink).name) .replace(/'/g, "\\'") }'
-                        }
-                    )
-                $$) AS (v agtype);
-            `);
-        }
+                MERGE (
+                    n:Note {
+                        file_name: '${WikiLink.replace(/'/g, "\\'")}.md',
+                        title: '${WikiLink.replace(/'/g, "\\'")}'
+                    }
+                )
+            $$) AS (v agtype);
+        `);
 
         await sql.unsafe(`
             SELECT *
