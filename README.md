@@ -32,8 +32,10 @@ SET search_path = ag_catalog, "$user", public;
 SELECT *
 FROM cypher('graph', $$
     MATCH (note:Note)
-    RETURN note.file_name
-$$) as (file_name agtype);
+    WITH note.file_name AS file_name, note.file_path AS file_path
+    ORDER BY note.file_name
+    RETURN file_name, file_path
+$$) as (file_name agtype, file_path agtype);
 ```
 
 <img src="screenshots/execute-query.png" />
